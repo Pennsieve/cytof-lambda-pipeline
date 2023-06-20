@@ -1,4 +1,4 @@
-myRcode <- function() {
+cytofDemo <- function(version,routeKey,rawPath,rawQueryString,headers,requestContext,body,isBase64Encoded) {
   library(httr)
   library(jsonlite)
   library(stringr)

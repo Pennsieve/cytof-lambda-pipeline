@@ -49,4 +49,4 @@ RUN printf '#!/bin/sh\ncd $LAMBDA_TASK_ROOT\nRscript bootstrap.R' > /var/runtime
   && chmod +x /var/runtime/bootstrap
 
 # Run function
-CMD [ "functions.myRcode" ]
+CMD [ "functions.cytofDemo" ]
