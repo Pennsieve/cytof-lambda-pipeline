@@ -1,58 +1,28 @@
 
-# Welcome to your CDK Python project!
+# CYTOF R lang demo
 
-This is a blank project for CDK development with Python.
+This project prooves that we can run R code in a docker container, upload it to a lambda an then trigger it as an integration.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+This should allow any public lambda URL to be triggered
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+## Setup
 
-To manually create a virtualenv on MacOS and Linux:
+ * To run locally, add a .env file into the assets folder with `PENNSIEVE_API_KEY`, `PENNSIEVE_API_SECRET` and `REGION`
 
-```
-$ python3 -m venv .venv
-```
+ * Navigate to the assets folder and run `docker build -t <IMAGE_NAME> . &&  docker run --name <CONTAINER_NAME> --env-file .env -p 8080:808 <IMAGE_NAME>`
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+ * Test execution of your code by running `curl -X GET "http://localhost:8080/2015-03-31/functions/function/invocations" -d '{"version":"1","routeKey":"","rawPath":"","rawQueryString":"","headers":"","requestContext":"","body":"","isBase64Encoded":""}'`
 
-```
-$ source .venv/bin/activate
-```
+ * After code is tested and runs locally, you can push it up to lambda with the the following commands:
 
-If you are a Windows platform, you would activate the virtualenv like this:
+   * `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <AWS_ACCOUNT_NUMBER>.dkr.ecr.us-east-1.amazonaws.com`
 
-```
-% .venv\Scripts\activate.bat
-```
+   * `docker build -t <CONTAINER_NAME> .`
 
-Once the virtualenv is activated, you can install the required dependencies.
+   * `docker tag <CONTAINER_NAME> :latest <AWS_ACCOUNT_NUMBER>.dkr.ecr.us-east-1.amazonaws.com/<CONTAINER_NAME> :latest`
 
-```
-$ pip install -r requirements.txt
-```
+   * `docker push <AWS_ACCOUNT_NUMBER>.dkr.ecr.us-east-1.amazonaws.com/<CONTAINER_NAME>:latest`
 
-At this point you can now synthesize the CloudFormation template for this code.
+* Add the `PENNSIEVE_API_KEY`, `PENNSIEVE_API_SECRET` and `REGION` environment variables to your lambda, and enable a function URL.
 
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+* With that function URL you can now trigger your R code
